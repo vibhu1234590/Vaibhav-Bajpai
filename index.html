@@ -379,14 +379,51 @@
 
   .fade-in{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease;}
   .fade-in.in{opacity:1; transform:translateY(0);}
+
+  /* ---- interactive layer ---- */
+  .progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--green),var(--amber));z-index:200;width:0%;}
+
+  .badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:10px;color:#fff;margin-right:7px;flex-shrink:0;}
+  .badge.nx{background:var(--green);}
+  .badge.st{background:var(--amber);}
+  .platform-row{display:flex;align-items:center;flex-wrap:wrap;gap:3px 4px;}
+
+  .hero{position:relative;}
+  .hero-canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .hero .wrap{position:relative;z-index:1;}
+
+  .spark{width:42px;height:16px;margin-left:8px;flex-shrink:0;}
+  .spark path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-dasharray:120;animation:dash 2.6s linear infinite;}
+  @keyframes dash{to{stroke-dashoffset:-240;}}
+
+  .service{position:relative;overflow:hidden;transition:transform .25s ease;}
+  .service::before{content:'';position:absolute;inset:0;background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),var(--green-soft),transparent 60%);opacity:0;transition:opacity .35s;pointer-events:none;}
+  .service:hover::before{opacity:1;}
+  .service:hover{transform:translateY(-3px);}
+
+  .marquee{overflow:hidden;margin-top:28px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);}
+  .marquee-track{display:flex;gap:8px;width:max-content;animation:scrollx 26s linear infinite;}
+  .marquee:hover .marquee-track{animation-play-state:paused;}
+  @keyframes scrollx{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  .topbar-nav a.active{color:var(--ink);border-color:var(--green);}
+  .menu-btn{display:none;background:none;border:1px solid var(--line);border-radius:var(--radius);width:30px;height:30px;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--ink-soft);}
+  @media (max-width:640px){
+    .menu-btn{display:flex;}
+    .topbar-nav{display:flex;position:fixed;top:45px;left:0;right:0;background:var(--bg);flex-direction:column;gap:0;border-bottom:1px solid var(--line);transform:translateY(-130%);transition:transform .25s ease;padding:6px 0;}
+    .topbar-nav.open{transform:translateY(0);}
+    .topbar-nav a{padding:13px 28px;border-bottom:1px solid var(--line);}
+  }
 </style>
 </head>
 <body>
+<div class="progress" id="progressBar"></div>
 
 <div class="topbar">
   <div class="wrap topbar-inner">
     <div class="topbar-status"><span class="dot" id="bootDot0"></span> System Operational</div>
-    <nav class="topbar-nav">
+    <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+    <nav class="topbar-nav" id="topbarNav">
       <a href="#about">About</a>
       <a href="#expertise">Expertise</a>
       <a href="#experience">Experience</a>
@@ -398,6 +435,7 @@
 </div>
 
 <header class="hero">
+  <canvas class="hero-canvas" id="heroCanvas"></canvas>
   <div class="wrap">
     <div class="console">
       <div class="console-head">
@@ -406,17 +444,17 @@
       </div>
       <div class="console-body">
         <div class="console-text">
-        <h1>Technical Architect for <span class="accent">Digital Employee Experience</span></h1>
+        <h1>Solution Architect for <span class="accent">Digital Employee Experience</span></h1>
         <p class="console-sub">I design and deploy the systems that tell enterprises how their employees actually experience their technology — built on Nexthink and SysTrack, from pilot to full production.</p>
 
         <div class="metrics">
           <div class="metric">
             <div class="metric-label">Experience</div>
-            <div class="metric-value">6+ Years</div>
+            <div class="metric-value" data-count="6" data-suffix="+ Years">0 Years</div>
           </div>
           <div class="metric">
             <div class="metric-label">Deployments</div>
-            <div class="metric-value">20+ Projects</div>
+            <div class="metric-value" data-count="20" data-suffix="+ Projects">0 Projects</div>
           </div>
           <div class="metric">
             <div class="metric-label">Core Platforms</div>
@@ -447,23 +485,17 @@
       <p>I'm a Technical Architect and Digital Employee Experience (DEX) professional with 6+ years across Enterprise End User Computing, endpoint management, automation, and digital experience monitoring. My work centers on Nexthink administration, proactive remediation, PowerShell automation, ServiceNow integrations, and endpoint analytics at scale.</p>
       <p>I've led Nexthink and SysTrack deployment across 20+ enterprise projects, spanning multiple client engagements, and driven end-to-end transition management and BAU setup for delivery teams to ensure seamless steady-state operations.</p>
       <p>I'm currently working as a Technical Architect Manager at Capgemini, and open to conversations where deep platform expertise meets business-facing strategy.</p>
-      <div class="chips">
-        <span class="chip">PowerShell Automation</span>
-        <span class="chip">ServiceNow Integration</span>
-        <span class="chip">NQL Development</span>
-        <span class="chip">Real-Time Alerting</span>
-        <span class="chip">SCCM</span>
-        <span class="chip">Microsoft Intune</span>
-        <span class="chip">JAMF</span>
-        <span class="chip">Azure AD · Okta · MFA</span>
-        <span class="chip">Citrix</span>
-        <span class="chip">Azure Virtual Desktop</span>
+      <div class="marquee">
+        <div class="marquee-track">
+          <span class="chip">PowerShell Automation</span><span class="chip">ServiceNow Integration</span><span class="chip">NQL Development</span><span class="chip">Real-Time Alerting</span><span class="chip">SCCM</span><span class="chip">Microsoft Intune</span><span class="chip">JAMF</span><span class="chip">Azure AD · Okta · MFA</span><span class="chip">Citrix</span><span class="chip">Azure Virtual Desktop</span>
+          <span class="chip">PowerShell Automation</span><span class="chip">ServiceNow Integration</span><span class="chip">NQL Development</span><span class="chip">Real-Time Alerting</span><span class="chip">SCCM</span><span class="chip">Microsoft Intune</span><span class="chip">JAMF</span><span class="chip">Azure AD · Okta · MFA</span><span class="chip">Citrix</span><span class="chip">Azure Virtual Desktop</span>
+        </div>
       </div>
     </div>
     <div class="about-side">
       <div><span>Based in</span>Noida, India</div>
       <div><span>Education</span>BCA — SASTRA Deemed University</div>
-      <div><span>Platforms</span>Nexthink Infinity, SysTrack</div>
+      <div><span>Platforms</span><span class="platform-row"><span class="badge nx">N</span>Nexthink Infinity<span class="badge st">S</span>SysTrack</span></div>
       <div><span>Currently</span>Technical Architect Manager — Capgemini</div>
     </div>
   </div>
@@ -473,8 +505,8 @@
   <div class="wrap">
     <div class="eyebrow"><span class="rule"></span>Monitored Services — What I Run</div>
     <div class="services">
-      <div class="service"><div class="service-top"><span class="service-name">Nexthink</span><span class="service-status"><span class="dot"></span>Active</span></div><p>Platform administration, collector lifecycle management, and engine/portal admin — plus investigations, dashboards, NQL queries, and experience scorecards.</p></div>
-      <div class="service"><div class="service-top"><span class="service-name">SysTrack</span><span class="service-status"><span class="dot"></span>Active</span></div><p>Endpoint telemetry and digital experience scoring, configured to give IT leadership a clear, quantified view of employee-facing performance.</p></div>
+      <div class="service"><div class="service-top"><span class="service-name"><span class="badge nx">N</span>Nexthink</span><span class="service-status" style="color:var(--green)"><span class="dot"></span>Active<svg class="spark" viewBox="0 0 120 30" preserveAspectRatio="none"><path d="M0,20 L10,12 L20,18 L30,8 L40,15 L50,5 L60,14 L70,10 L80,18 L90,6 L100,16 L110,9 L120,20"/></svg></span></div><p>Platform administration, collector lifecycle management, and engine/portal admin — plus investigations, dashboards, NQL queries, and experience scorecards.</p></div>
+      <div class="service"><div class="service-top"><span class="service-name"><span class="badge st">S</span>SysTrack</span><span class="service-status" style="color:var(--amber)"><span class="dot amber"></span>Active<svg class="spark" viewBox="0 0 120 30" preserveAspectRatio="none"><path d="M0,15 L10,22 L20,10 L30,18 L40,6 L50,16 L60,9 L70,20 L80,12 L90,17 L100,7 L110,15 L120,10"/></svg></span></div><p>Endpoint telemetry and digital experience scoring, configured to give IT leadership a clear, quantified view of employee-facing performance.</p></div>
       <div class="service"><div class="service-top"><span class="service-name">Automation &amp; Remediation</span><span class="service-status"><span class="dot"></span>Active</span></div><p>PowerShell-based remediation workflows, automated endpoint health assessments, self-healing use cases, and Real-Time Alerting for proactive incident prevention.</p></div>
       <div class="service"><div class="service-top"><span class="service-name">Integrations</span><span class="service-status"><span class="dot"></span>Active</span></div><p>ServiceNow incident automation, REST API integrations, and cross-platform workflow orchestration — reducing MTTR and streamlining IT operations.</p></div>
       <div class="service"><div class="service-top"><span class="service-name">BAU Transition &amp; Delivery</span><span class="service-status"><span class="dot"></span>Active</span></div><p>Leading the handover from project delivery to business-as-usual — building the operating model that keeps a DEX program healthy after go-live.</p></div>
@@ -600,24 +632,113 @@
 </footer>
 
 <script>
-  // boot sequence for status dots
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.dot').forEach((d,i) => {
-      d.style.animationDelay = (i*0.05)+'s';
-    });
+    document.querySelectorAll('.dot').forEach((d,i) => { d.style.animationDelay = (i*0.05)+'s'; });
   });
 
-  // scroll reveal
   const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
+    entries.forEach((e,i) => {
       if(e.isIntersecting){
+        e.target.style.transitionDelay = (i%4)*0.06+'s';
         e.target.classList.add('in');
         io.unobserve(e.target);
       }
     });
   }, {threshold:0.15});
-
   document.querySelectorAll('.service, .impact-row, .timeline-item, .fade-in').forEach(el => io.observe(el));
+
+  const bar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+    bar.style.width = pct+'%';
+  });
+
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count,10);
+    const suffix = el.dataset.suffix || '';
+    if(reduceMotion){ el.textContent = target+suffix; return; }
+    let n = 0;
+    const step = Math.max(1, Math.round(target/40));
+    const tick = () => {
+      n = Math.min(target, n+step);
+      el.textContent = n+suffix;
+      if(n<target) requestAnimationFrame(tick);
+    };
+    const cio = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ tick(); cio.disconnect(); } }); }, {threshold:0.6});
+    cio.observe(el);
+  });
+
+  document.querySelectorAll('.service').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
+      card.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
+    });
+  });
+
+  const menuBtn = document.getElementById('menuBtn');
+  const topbarNav = document.getElementById('topbarNav');
+  menuBtn.addEventListener('click', () => topbarNav.classList.toggle('open'));
+  topbarNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => topbarNav.classList.remove('open')));
+
+  const navLinks = [...topbarNav.querySelectorAll('a')];
+  const navIo = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+e.target.id));
+      }
+    });
+  }, {threshold:0, rootMargin:'-40% 0px -50% 0px'});
+  document.querySelectorAll('section[id]').forEach(s => navIo.observe(s));
+
+  const canvas = document.getElementById('heroCanvas');
+  if(canvas && !reduceMotion){
+    const ctx = canvas.getContext('2d');
+    let w,h,nodes;
+    function resize(){
+      const hero = canvas.parentElement;
+      w = canvas.width = hero.offsetWidth;
+      h = canvas.height = hero.offsetHeight;
+    }
+    function init(){
+      resize();
+      const count = Math.round(w/60);
+      nodes = Array.from({length:count}, () => ({
+        x: Math.random()*w, y: Math.random()*h,
+        vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3
+      }));
+    }
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      nodes.forEach(n => {
+        n.x+=n.vx; n.y+=n.vy;
+        if(n.x<0||n.x>w) n.vx*=-1;
+        if(n.y<0||n.y>h) n.vy*=-1;
+      });
+      for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<nodes.length;j++){
+          const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if(d<140){
+            ctx.strokeStyle = 'rgba(31,111,84,'+(1-d/140)*0.35+')';
+            ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+          }
+        }
+      }
+      nodes.forEach(n => {
+        ctx.fillStyle='rgba(31,111,84,0.55)';
+        ctx.beginPath(); ctx.arc(n.x,n.y,1.6,0,Math.PI*2); ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    init();
+    window.addEventListener('resize', init);
+    draw();
+  }
 </script>
 
 </body>
